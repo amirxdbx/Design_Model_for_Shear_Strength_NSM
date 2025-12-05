@@ -6,7 +6,7 @@ import math
 # Set page configuration
 st.set_page_config(
     page_title="NSM FRP Shear Resistance",
-    layout="wide",
+    layout="centered",
     page_icon="🏗️",
     initial_sidebar_state="expanded"
 )
@@ -50,18 +50,18 @@ st.markdown("""
 
     /* Custom Header */
     .main-header {
-        padding: 2rem 0;
+        padding: 1rem 0;
         text-align: center;
-        margin-bottom: 2rem;
+        margin-bottom: 1rem;
         border-bottom: var(--glass-border);
     }
     
     .main-header h1 {
-        font-size: 3.5rem;
+        font-size: 2.5rem;
         background: linear-gradient(135deg, #0066CC 0%, #2979FF 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.25rem;
     }
     
     .main-header p {
@@ -81,7 +81,7 @@ st.markdown("""
 
     /* Cards / Containers */
     .css-1r6slb0, .stVerticalBlock {
-        gap: 1.5rem;
+        gap: 1rem;
     }
     
     div[data-testid="stVerticalBlock"] > div[style*="flex-direction: column;"] > div[data-testid="stVerticalBlock"] {
@@ -89,8 +89,8 @@ st.markdown("""
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
         border: var(--glass-border);
-        border-radius: 16px;
-        padding: 1.5rem;
+        border-radius: 12px;
+        padding: 1rem;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
         transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
@@ -98,7 +98,7 @@ st.markdown("""
     /* Metrics */
     [data-testid="stMetricValue"] {
         font-family: 'Space Grotesk', monospace;
-        font-size: 2.5rem !important;
+        font-size: 1.8rem !important;
         color: var(--primary) !important;
         text-shadow: none;
     }
@@ -122,14 +122,15 @@ st.markdown("""
     }
 
     .stTabs [data-baseweb="tab"] {
-        height: 50px;
+        height: 40px;
         white-space: pre-wrap;
         background-color: rgba(0,0,0,0.03);
         border-radius: 8px;
         color: var(--text-muted);
         border: none;
-        padding: 0 20px;
+        padding: 0 15px;
         font-weight: 600;
+        font-size: 0.9rem;
     }
 
     .stTabs [aria-selected="true"] {
@@ -191,7 +192,7 @@ with st.sidebar:
         
     # Group 4: Reinforcement
     with st.expander("Reinforcement Ratios", expanded=False):
-        rho_sw = st.slider("$\\rho_{sw}$", 0.0, 0.004, 0.001, 0.0001, format="%.4f") # 0.1%
+        rho_sw = st.slider("$\\rho_{sw}$", 0.0, 0.01, 0.001, 0.0001, format="%.4f") # 0.1%
         rho_slT = st.slider("$\\rho_{slT}$", 0.001, 0.04, 0.031, 0.001, format="%.3f") # 3.1%
         rho_f = st.slider("$\\rho_f$", 0.0001, 0.01, 0.0008, 0.0001, format="%.4f") # 0.082% approx 0.0008
         
@@ -395,4 +396,3 @@ with tab3:
         st.latex(r"\nu_f = \frac{\rho_f E_f h_f \varepsilon_{fe}}{d_s} (\cot \theta + \cot \alpha_f) \sin \alpha_f")
         st.markdown("**Effective Strain**")
         st.latex(r"\varepsilon_{fe} = \kappa_m \cdot p' (\rho_f E_f)^q")
-
