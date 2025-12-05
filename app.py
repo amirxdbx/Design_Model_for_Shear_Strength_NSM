@@ -191,7 +191,7 @@ with st.sidebar:
         
     # Group 4: Reinforcement
     with st.expander("Reinforcement Ratios", expanded=False):
-        rho_sw = st.slider("$\\rho_{sw}$", 0.0, 0.01, 0.001, 0.0001, format="%.4f") # 0.1%
+        rho_sw = st.slider("$\\rho_{sw}$", 0.0, 0.004, 0.001, 0.0001, format="%.4f") # 0.1%
         rho_slT = st.slider("$\\rho_{slT}$", 0.001, 0.04, 0.031, 0.001, format="%.3f") # 3.1%
         rho_f = st.slider("$\\rho_f$", 0.0001, 0.01, 0.0008, 0.0001, format="%.4f") # 0.082% approx 0.0008
         
@@ -395,3 +395,4 @@ with tab3:
         st.latex(r"\nu_f = \frac{\rho_f E_f h_f \varepsilon_{fe}}{d_s} (\cot \theta + \cot \alpha_f) \sin \alpha_f")
         st.markdown("**Effective Strain**")
         st.latex(r"\varepsilon_{fe} = \kappa_m \cdot p' (\rho_f E_f)^q")
+
