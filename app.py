@@ -397,3 +397,4 @@ with tab3:
         st.markdown("**Effective Strain**")
         st.latex(r"\varepsilon_{fe} = \kappa_m \cdot p' (\rho_f E_f)^q")
 
+
