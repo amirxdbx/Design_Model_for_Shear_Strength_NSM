@@ -318,9 +318,9 @@ with kpi1:
 with kpi2:
     st.metric("$V_{Rd}^{WLSF}$", f"{V_Rd_WLSF_Var:.1f} kN", delta="Variable γR")
 with kpi3:
-    st.metric("$\gamma_{R}^{Lind}$", f"{gamma_R_Lind:.2f}", delta_color="off")
+    st.metric("$y_{R}^{Lind}$", f"{gamma_R_Lind:.2f}", delta_color="off")
 with kpi4:
-    st.metric("$\gamma_{R}^{WLSF}$", f"{gamma_R_WLSF:.2f}", delta_color="off")
+    st.metric("$y_{R}^{WLSF}$", f"{gamma_R_WLSF:.2f}", delta_color="off")
 
 st.markdown("---")
 
@@ -419,6 +419,7 @@ with tab3:
         st.latex(r"\nu_f = \frac{\rho_f E_f h_f \varepsilon_{fe}}{d_s} (\cot \theta + \cot \alpha_f) \sin \alpha_f")
         st.markdown("**Effective Strain**")
         st.latex(r"\varepsilon_{fe} = \kappa_m \cdot p' (\rho_f E_f)^q")
+
 
 
 
