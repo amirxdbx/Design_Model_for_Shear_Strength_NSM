@@ -166,8 +166,9 @@ with st.sidebar:
     st.markdown("### ⚙️ Configuration")
     
     # Group 1: System
-    with st.expander("Strengthening System", expanded=True):
-        reinforcement_type = st.radio("Type", ["Bars", "Laminates"], index=1, label_visibility="collapsed") # Default to Laminates
+    with st.expander("System & Reliability", expanded=True):
+        reinforcement_type = st.radio("Type", ["Bars", "Laminates"], index=1, horizontal=True)
+        beta_T = st.selectbox("Target Reliability Index ($\\beta_T$)", [3.2, 3.4, 3.6, 3.8], index=3)
         
     # Group 2: Geometry
     with st.expander("Geometry", expanded=True):
@@ -192,7 +193,7 @@ with st.sidebar:
         
     # Group 4: Reinforcement
     with st.expander("Reinforcement Ratios", expanded=False):
-        rho_sw = st.slider("$\\rho_{sw}$", 0.0, 0.004, 0.001, 0.0001, format="%.4f") # 0.1%
+        rho_sw = st.slider("$\\rho_{sw}$", 0.0, 0.01, 0.001, 0.0001, format="%.4f") # 0.1%
         rho_slT = st.slider("$\\rho_{slT}$", 0.001, 0.04, 0.031, 0.001, format="%.3f") # 3.1%
         rho_f = st.slider("$\\rho_f$", 0.0001, 0.01, 0.0008, 0.0001, format="%.4f") # 0.082% approx 0.0008
         
@@ -262,20 +263,42 @@ nu_fk = (rho_f * E_f * h_f * eps_fek / d_s) * (1/math.tan(theta) + 1/math.tan(al
 
 # 4. Factors
 s_val = f_swy * rho_sw
+
+gamma_R_params = {
+    "Bars": {
+        3.2: {"Lind": (-2.5, 4.5, 1.56), "WLSF": (-4.0, 8.7, 1.43)},
+        3.4: {"Lind": (-3.2, 4.8, 1.72), "WLSF": (-3.2, 5.6, 1.53)},
+        3.6: {"Lind": (-1.8, 3.1, 1.67), "WLSF": (-3.4, 5.2, 1.65)},
+        3.8: {"Lind": (-2.0, 3.3, 1.75), "WLSF": (-1.1, 2.2, 1.49)}
+    },
+    "Laminates": {
+        3.2: {"Lind": (-1.0, 2.6, 1.47), "WLSF": (-1.2, 3.0, 1.36)},
+        3.4: {"Lind": (-1.5, 3.2, 1.62), "WLSF": (-1.3, 3.2, 1.43)},
+        3.6: {"Lind": (-1.4, 3.1, 1.68), "WLSF": (-0.9, 2.4, 1.43)},
+        3.8: {"Lind": (-0.6, 1.7, 1.64), "WLSF": (-0.6, 1.7, 1.48)}
+    }
+}
+
+a_L, b_L, c_L = gamma_R_params[reinforcement_type][beta_T]["Lind"]
+a_W, b_W, c_W = gamma_R_params[reinforcement_type][beta_T]["WLSF"]
+
+gamma_R_Lind = a_L / (b_L + s_val) + c_L
+gamma_R_WLSF = a_W / (b_W + s_val) + c_W
+
 if reinforcement_type == "Laminates":
-    gamma_R_Lind = -0.6 / (1.7 + s_val) + 1.6
-    gamma_R_WLSF = -0.8 / (2.1 + s_val) + 1.5
     gamma_R_Const_Lind = 1.41
     gamma_R_Const_WLSF = 1.25
 else:
-    gamma_R_Lind = -2.6 / (3.8 + s_val) + 1.8
-    gamma_R_WLSF = -2.5 / (4.0 + s_val) + 1.7
     gamma_R_Const_Lind = 1.30
     gamma_R_Const_WLSF = 1.16
 
 gamma_c = 1.5
 gamma_s = 1.15
-gamma_fb = 1.25
+
+if reinforcement_type == "Laminates":
+    gamma_fb = 0.15 * beta_T + 0.65
+else:
+    gamma_fb = 0.22 * beta_T + 0.41
 
 def calculate_V_Rd(gamma_R, nu_ck, nu_sk, nu_fk, b_w, d_s):
     term = (nu_ck / gamma_c) + (nu_sk / gamma_s) + (nu_fk / gamma_fb)
@@ -396,5 +419,3 @@ with tab3:
         st.latex(r"\nu_f = \frac{\rho_f E_f h_f \varepsilon_{fe}}{d_s} (\cot \theta + \cot \alpha_f) \sin \alpha_f")
         st.markdown("**Effective Strain**")
         st.latex(r"\varepsilon_{fe} = \kappa_m \cdot p' (\rho_f E_f)^q")
-
-
