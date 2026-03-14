@@ -3,6 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 
+# Logo URL
+LOGO_URL = "https://isise.net/wp-content/uploads/2024/06/isise-logo-ash@hd.png"
+
 # Set page configuration
 st.set_page_config(
     page_title="NSM FRP Shear Resistance",
@@ -16,19 +19,17 @@ st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Space+Grotesk:wght@300;400;600;700&display=swap');
 
-    /* Variables */
     :root {
-        --primary: #0066CC; /* Deep Blue */
-        --secondary: #00E5FF; /* Cyan */
-        --accent: #FF1744; /* Red */
-        --bg-light: #F8F9FA; /* Light Gray/White */
+        --primary: #0066CC;
+        --secondary: #00E5FF;
+        --accent: #FF1744;
+        --bg-light: #F8F9FA;
         --card-bg: rgba(255, 255, 255, 0.8);
-        --text-main: #1A202C; /* Dark Gray/Black */
-        --text-muted: #64748B; /* Slate Gray */
+        --text-main: #1A202C;
+        --text-muted: #64748B;
         --glass-border: 1px solid rgba(0, 0, 0, 0.05);
     }
 
-    /* Global Reset & Typography */
     .stApp {
         background-color: var(--bg-light);
         background-image: radial-gradient(circle at 50% 0%, rgba(0, 102, 204, 0.05) 0%, transparent 50%);
@@ -48,12 +49,25 @@ st.markdown("""
         color: var(--text-main);
     }
 
-    /* Custom Header */
+    /* Header */
     .main-header {
-        padding: 1rem 0;
+        padding: 1rem 0 1.25rem 0;
         text-align: center;
         margin-bottom: 1rem;
         border-bottom: var(--glass-border);
+    }
+
+    .header-logo {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 0.75rem;
+    }
+
+    .header-logo img {
+        max-height: 72px;
+        width: auto;
+        object-fit: contain;
+        filter: drop-shadow(0 2px 6px rgba(0,0,0,0.08));
     }
     
     .main-header h1 {
@@ -67,6 +81,26 @@ st.markdown("""
     .main-header p {
         font-size: 1.1rem;
         color: var(--text-muted);
+    }
+
+    /* Reference Box */
+    .reference-box {
+        background: rgba(255,255,255,0.88);
+        border: var(--glass-border);
+        border-radius: 14px;
+        padding: 1rem 1.2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        margin-top: 1rem;
+    }
+
+    .reference-box h4 {
+        margin-bottom: 0.5rem;
+        color: var(--primary);
+    }
+
+    .reference-box p {
+        margin-bottom: 0.35rem;
+        line-height: 1.5;
     }
 
     /* Sidebar Styling */
@@ -145,17 +179,19 @@ st.markdown("""
         color: #334155;
     }
     
-    /* Plotly/Charts background */
+    /* Plot background */
     .js-plotly-plot .plotly .main-svg {
         background: transparent !important;
     }
-
 </style>
 """, unsafe_allow_html=True)
 
-# --- Header ---
-st.markdown("""
+# --- Header with Logo ---
+st.markdown(f"""
 <div class="main-header">
+    <div class="header-logo">
+        <img src="{LOGO_URL}" alt="ISISE Logo">
+    </div>
     <h1>NSM FRP Shear Resistance</h1>
     <p>Reliability-Based Design Model for RC Beams • Bars & Laminates</p>
 </div>
@@ -165,12 +201,10 @@ st.markdown("""
 with st.sidebar:
     st.markdown("### ⚙️ Configuration")
     
-    # Group 1: System
     with st.expander("System & Reliability", expanded=True):
         reinforcement_type = st.radio("Type", ["Bars", "Laminates"], index=1, horizontal=True)
         beta_T = st.selectbox("Target Reliability Index ($\\beta_T$)", [3.2, 3.4, 3.6, 3.8], index=3)
         
-    # Group 2: Geometry
     with st.expander("Geometry", expanded=True):
         cross_section_type = st.radio("Cross Section", ["Rectangular", "T-Beam"], index=1, horizontal=True)
         
@@ -185,25 +219,22 @@ with st.sidebar:
             b_fl = b_w
             h_fl = 0.0
         
-    # Group 3: Materials
     with st.expander("Materials", expanded=False):
         f_cm = st.slider("$f_{cm}$ [MPa]", 20.0, 100.0, 59.4, 0.1)
         f_swy = st.slider("$f_{swy}$ [MPa]", 200, 800, 551)
         E_f = st.slider("$E_f$ [MPa]", 100000, 300000, 174300, 100)
         
-    # Group 4: Reinforcement
     with st.expander("Reinforcement Ratios", expanded=False):
-        rho_sw = st.slider("$\\rho_{sw}$", 0.0, 0.01, 0.001, 0.0001, format="%.4f") # 0.1%
-        rho_slT = st.slider("$\\rho_{slT}$", 0.001, 0.04, 0.031, 0.001, format="%.3f") # 3.1%
-        rho_f = st.slider("$\\rho_f$", 0.0001, 0.01, 0.0008, 0.0001, format="%.4f") # 0.082% approx 0.0008
+        rho_sw = st.slider("$\\rho_{sw}$", 0.0, 0.01, 0.001, 0.0001, format="%.4f")
+        rho_slT = st.slider("$\\rho_{slT}$", 0.001, 0.04, 0.031, 0.001, format="%.3f")
+        rho_f = st.slider("$\\rho_f$", 0.0001, 0.01, 0.0008, 0.0001, format="%.4f")
         
-    # Group 5: NSM Config
     with st.expander("NSM Details", expanded=False):
         alpha_f_deg = st.slider("$\\alpha_f$ [deg]", 45, 90, 90, 5)
         h_f = st.slider("$h_f$ [mm]", 100, 1000, 300, 10)
-        d_g = st.slider("Groove Depth ($d_g$) [mm]", 5, 40, 14, 1) # d_b = 14
+        d_g = st.slider("Groove Depth ($d_g$) [mm]", 5, 40, 14, 1)
 
-# --- Calculations (Logic remains same) ---
+# --- Calculations ---
 alpha_f = math.radians(alpha_f_deg)
 L_Rf = h_f / (4 * math.sin(alpha_f))
 
@@ -217,6 +248,7 @@ if reinforcement_type == "Laminates":
 else:
     theta_deg = 3.85 * (5.8 * rho_slT**(-0.08) + 0.32 * (f_swy * rho_sw)**1.7) * \
                 (1 + 0.00024 * f_cm) * (1 + 0.00067 * L_Rf) * (1 + 0.000012 * rho_f * E_f)
+
 theta = math.radians(theta_deg)
 
 if reinforcement_type == "Laminates":
@@ -259,7 +291,7 @@ if reinforcement_type == "Laminates":
 else:
     eps_fek = 0.592 * eps_fe_mean
 
-nu_fk = (rho_f * E_f * h_f * eps_fek / d_s) * (1/math.tan(theta) + 1/math.tan(alpha_f)) * math.sin(alpha_f)
+nu_fk = (rho_f * E_f * h_f * eps_fek / d_s) * (1 / math.tan(theta) + 1 / math.tan(alpha_f)) * math.sin(alpha_f)
 
 # 4. Factors
 s_val = f_swy * rho_sw
@@ -311,39 +343,37 @@ V_Rd_WLSF_Const = calculate_V_Rd(gamma_R_Const_WLSF, nu_ck, nu_sk, nu_fk, b_w, d
 
 # --- Main Dashboard ---
 
-# Top KPI Cards
 kpi1, kpi2, kpi3, kpi4 = st.columns(4)
 with kpi1:
     st.metric("$V_{Rd}^{Lind}$", f"{V_Rd_Lind_Var:.1f} kN", delta="Variable γR")
 with kpi2:
     st.metric("$V_{Rd}^{WLSF}$", f"{V_Rd_WLSF_Var:.1f} kN", delta="Variable γR")
 with kpi3:
-    st.metric("$y_{R}^{Lind}$", f"{gamma_R_Lind:.2f}", delta_color="off")
+    st.metric("$\\gamma_{R}^{Lind}$", f"{gamma_R_Lind:.2f}", delta_color="off")
 with kpi4:
-    st.metric("$y_{R}^{WLSF}$", f"{gamma_R_WLSF:.2f}", delta_color="off")
+    st.metric("$\\gamma_{R}^{WLSF}$", f"{gamma_R_WLSF:.2f}", delta_color="off")
 
 st.markdown("---")
 
-# Tabs for detailed view
-tab1, tab2, tab3 = st.tabs(["📊 Analysis & Charts", "🧮 Detailed Calculations", "📝 Formulas"])
+tab1, tab2, tab3, tab4 = st.tabs(
+    ["📊 Analysis & Charts", "🧮 Detailed Calculations", "📝 Formulas", "📚 Reference"]
+)
 
 with tab1:
     col_charts_1, col_charts_2 = st.columns([1.5, 1])
     
     with col_charts_1:
         st.markdown("### 📈 Resistance Comparison")
-        # Bar Chart
-        plt.style.use('default') # Reset to default (light)
+        plt.style.use('default')
         fig, ax = plt.subplots(figsize=(8, 5), facecolor='none')
         ax.set_facecolor('none')
         
         methods = ["Lind (Var)", "WLSF (Var)", "Lind (Const)", "WLSF (Const)"]
         values = [V_Rd_Lind_Var, V_Rd_WLSF_Var, V_Rd_Lind_Const, V_Rd_WLSF_Const]
-        colors_bar = ['#0066CC', '#2979FF', '#475569', '#64748B'] # Blue shades and Grays
+        colors_bar = ['#0066CC', '#2979FF', '#475569', '#64748B']
         
         bars = ax.bar(methods, values, color=colors_bar, width=0.6, zorder=3)
         
-        # Grid and Spines
         ax.grid(axis='y', linestyle='--', alpha=0.3, zorder=0, color='#CBD5E1')
         ax.spines['top'].set_visible(False)
         ax.spines['right'].set_visible(False)
@@ -353,39 +383,56 @@ with tab1:
         ax.tick_params(axis='x', colors='#475569', labelsize=10)
         ax.tick_params(axis='y', colors='#475569', labelsize=10)
         
-        # Labels
         for bar in bars:
             height = bar.get_height()
-            ax.text(bar.get_x() + bar.get_width()/2., height + 2,
-                    f'{height:.1f} kN',
-                    ha='center', va='bottom', color='#1E293B', fontsize=11, fontweight='bold')
+            ax.text(
+                bar.get_x() + bar.get_width() / 2.,
+                height + 2,
+                f'{height:.1f} kN',
+                ha='center',
+                va='bottom',
+                color='#1E293B',
+                fontsize=11,
+                fontweight='bold'
+            )
             
         st.pyplot(fig, use_container_width=True)
 
     with col_charts_2:
         st.markdown("### 🥧 Resistance Share")
-        # Pie Chart
         v_c_d = (nu_ck / gamma_c) * b_w * d_s / 1000
         v_s_d = (nu_sk / gamma_s) * b_w * d_s / 1000
         v_f_d = (nu_fk / gamma_fb) * b_w * d_s / 1000
         
         labels = ['Concrete', 'Steel', 'FRP']
         sizes = [v_c_d, v_s_d, v_f_d]
-        colors_pie = ['#26C6DA', '#FFA726', '#EF5350'] # Teal, Orange, Red
+        colors_pie = ['#26C6DA', '#FFA726', '#EF5350']
         
         fig2, ax2 = plt.subplots(figsize=(5, 5), facecolor='none')
-        wedges, texts, autotexts = ax2.pie(sizes, labels=labels, colors=colors_pie, 
-                                          autopct='%1.1f%%', startangle=140, 
-                                          pctdistance=0.85, explode=(0.05, 0.05, 0.05),
-                                          textprops={'color':"#334155", 'fontsize': 10})
+        wedges, texts, autotexts = ax2.pie(
+            sizes,
+            labels=labels,
+            colors=colors_pie,
+            autopct='%1.1f%%',
+            startangle=140,
+            pctdistance=0.85,
+            explode=(0.05, 0.05, 0.05),
+            textprops={'color': "#334155", 'fontsize': 10}
+        )
         
-        # Donut hole
-        centre_circle = plt.Circle((0,0),0.70,fc='white') # White center for light theme
+        centre_circle = plt.Circle((0, 0), 0.70, fc='white')
         fig2.gca().add_artist(centre_circle)
         
-        # Center text
         total_v = sum(sizes)
-        ax2.text(0, 0, f"Total\n{total_v:.0f} kN", ha='center', va='center', color='#1E293B', fontsize=12, fontweight='bold')
+        ax2.text(
+            0, 0,
+            f"Total\n{total_v:.0f} kN",
+            ha='center',
+            va='center',
+            color='#1E293B',
+            fontsize=12,
+            fontweight='bold'
+        )
         
         st.pyplot(fig2, use_container_width=True)
 
@@ -420,6 +467,14 @@ with tab3:
         st.markdown("**Effective Strain**")
         st.latex(r"\varepsilon_{fe} = \kappa_m \cdot p' (\rho_f E_f)^q")
 
-
-
-
+with tab4:
+    st.markdown("### 📚 Reference")
+    st.markdown("""
+    <div class="reference-box">
+        <h4>Structural Safety</h4>
+        <p><strong>Title:</strong> Reliability Based Design Model for RC Beams Shear Strengthened with NSM FRP</p>
+        <p><strong>Authors:</strong> Amirhossein Mohammadi, Joaquim A.O. Barros, José Sena-Cruz</p>
+        <p><strong>Corresponding Author:</strong> Amirhossein Mohammadi</p>
+        <p><strong>Email:</strong> Amirh.Mohammadi@civil.uminho.pt</p>
+    </div>
+    """, unsafe_allow_html=True)
